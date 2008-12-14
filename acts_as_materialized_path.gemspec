@@ -6,13 +6,13 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sylwester Gryzio"]
-  s.date = %q{2008-12-13}
+  s.date = %q{2008-12-14}
   s.description = %q{This gem uses materizlized path for hierarchy implementation in database}
   s.email = ["sylwester.gryzio@gmail.com"]
   s.extra_rdoc_files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc"]
   s.files = ["History.txt", "init.rb", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "lib/acts_as_materialized_path.rb", "lib/active_record/acts/materialized_path.rb", "script/console", "script/console.cmd", "script/destroy", "script/destroy.cmd", "script/generate", "script/generate.cmd", "spec/spec_helper.rb", "spec/test_database/database_configuration.yml", "spec/test_database/database_connection.rb", "spec/test_database/migrations.rb", "spec/test_models_spec.rb", "spec/test_models/hierarchy.rb", "spec/spec.opts", "tasks/rspec.rake"]
   s.has_rdoc = true
-  s.homepage = %q{}
+  s.homepage = %q{FIX (url)}
   s.post_install_message = %q{PostInstall.txt}
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]
