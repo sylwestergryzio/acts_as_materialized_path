@@ -12,7 +12,7 @@ describe Hierarchy do
       :add_child, :add_to_tree, :ancestors, :build_tree, :child?, :children,
       :children_count, :children_list, :children_list=, :descendants, :destroy_descendants,
       :find_parent, :full_set, :level, :move_to_child_of, :parent, :root, :root?,
-      :self_and_ancestors, :self_and_siblings, :siblings, :sort_list_by
+      :save_as_root, :self_and_ancestors, :self_and_siblings, :siblings, :sort_list_by
     ]
     CreateHierarchy.migrate(:up)
     @hierarchy = Hierarchy.new
@@ -80,8 +80,8 @@ describe Hierarchy, "with migrated data" do
   
   it "should be able to find and sort children of a given node" do
     boss_of_company_3 = Hierarchy.find_by_name("Boss of company 3")
-    boss_of_company_3.children("desc").first.should eql(Hierarchy.find_by_name("Employee 3 of company 3"))
-    boss_of_company_3.children("desc").last.should eql(Hierarchy.find_by_name("Employee 1 of company 3"))
+    boss_of_company_3.children(:order_dir => "desc").first.should eql(Hierarchy.find_by_name("Employee 3 of company 3"))
+    boss_of_company_3.children(:order_dir => "desc").last.should eql(Hierarchy.find_by_name("Employee 1 of company 3"))
     boss_of_company_3.children.first.should eql(Hierarchy.find_by_name("Employee 1 of company 3"))
   end
   

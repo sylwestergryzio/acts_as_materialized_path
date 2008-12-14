@@ -29,8 +29,8 @@ module ActiveRecord
         end
         
         # first root out of sorted set
-        def root ( sort_order = "asc" )
-          roots = self.roots( sort_order )
+        def root ( order_options = {} )
+          roots = self.roots( order_options )
           if ( roots.size > 0 )
             roots[0]
           else
@@ -39,9 +39,16 @@ module ActiveRecord
         end
         
         # set ordered by given :order argument
-        def roots ( sort_order = "asc" )
-          roots = self.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} not like ?", "%.%"])
-          self.sort_by_path_column!( roots, sort_order )
+        def roots ( order_options = {} )
+          config = { :order => acts_as_materialized_path_options[:path_column], :order_dir => "asc"}
+          config.update(order_options) if order_options.is_a?(Hash)
+          
+          if(config[:order] == acts_as_materialized_path_options[:path_column])
+            roots = self.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} not like ?", "%.%"])
+            self.sort_by_path_column!( roots, config[:order_dir] )
+          else
+            self.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} not like ?", "%.%"], :order => "#{config[:order]} #{config[:order_dir]}")
+          end
         end
         
         def create_root ( parameters = {} )
@@ -51,12 +58,12 @@ module ActiveRecord
           return new_root
         end
         
-        def sort_by_path_column! ( to_sort, sort_order )
-          to_sort.sort! { |x,y| sort(x,y, sort_order ) }
+        def sort_by_path_column! ( to_sort, order_dir )
+          to_sort.sort! { |x,y| sort(x,y, order_dir ) }
         end
         
-        def sort_by_path_column ( to_sort, sort_order )
-          to_sort.sort { |x,y| sort(x,y, sort_order ) }
+        def sort_by_path_column ( to_sort, order_dir )
+          to_sort.sort { |x,y| sort(x,y, order_dir ) }
         end
         
         def sort ( x, y, order )
@@ -107,14 +114,26 @@ module ActiveRecord
           self[acts_as_materialized_path_options[:path_column]].count(".")
         end
         
-        def children ( sort_order = "asc" )
-          children = self.class.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} like ? || id ", self[acts_as_materialized_path_options[:path_column]] + "." ])
-          self.class.sort_by_path_column!(children, sort_order)
+        def children ( order_options = {} )
+          config = { :order => acts_as_materialized_path_options[:path_column], :order_dir => "asc"}
+          config.update(order_options) if order_options.is_a?(Hash)
+          if(config[:order] == acts_as_materialized_path_options[:path_column])
+            children = self.class.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} like ? || id ", self[acts_as_materialized_path_options[:path_column]] + "." ])
+            self.class.sort_by_path_column!(children, config[:order_dir])
+          else
+            self.class.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} like ? || id ", self[acts_as_materialized_path_options[:path_column]] + "." ], :order => "#{config[:order]} #{config[:order_dir]}")
+          end
         end
         
-        def descendants ( sort_order = "asc" )
-          descendants = self.class.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} like ?", self[acts_as_materialized_path_options[:path_column]] + ".%" ] )
-          self.class.sort_by_path_column!(descendants, sort_order)
+        def descendants ( order_options = {} )
+          config = { :order => acts_as_materialized_path_options[:path_column], :order_dir => "asc"}
+          config.update(order_options) if order_options.is_a?(Hash)
+          if( config.has_value?(acts_as_materialized_path_options[:path_column]) )
+            descendants = self.class.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} like ?", self[acts_as_materialized_path_options[:path_column]] + ".%" ] )
+            self.class.sort_by_path_column!(descendants, config[:order_dir])
+          else
+            self.class.find(:all, :conditions => [ "#{acts_as_materialized_path_options[:path_column]} like ?", self[acts_as_materialized_path_options[:path_column]] + ".%" ], :order => "#{config[:order]} #{config[:order_dir]}" )
+          end
         end
         
         def parent
@@ -135,16 +154,16 @@ module ActiveRecord
           self_and_ancestors - [self]
         end
         
-        def self_and_siblings ( sort_order = "asc" )
-          self.parent.children(sort_order)
+        def self_and_siblings ( order_options = {} )
+          self.parent.children(order_options)
         end
         
-        def siblings ( sort_order = "asc" )
-          self_and_siblings(sort_order) - [self]
+        def siblings ( order_options = {} )
+          self_and_siblings(order_options) - [self]
         end
         
-        def full_set ( sort_order = "asc" )
-          [self] + descendants(sort_order)
+        def full_set ( order_options = {} )
+          [self] + descendants(order_options)
         end
         
         def children_count
