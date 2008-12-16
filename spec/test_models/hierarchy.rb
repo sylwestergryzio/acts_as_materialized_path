@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../../init';
+require 'acts_as_materialized_path'
 
 class Hierarchy < ActiveRecord::Base
   acts_as_materialized_path
